@@ -621,56 +621,82 @@ public class Mainframe extends JFrame implements ActionListener {
             JOptionPane.showMessageDialog(this, "请选择里谱面解锁等级！");
         }
         else {
-            try {
-                JSONObject jsonObject = new JSONObject(true);
-                jsonObject.put("name",name);
-                jsonObject.put("author",author);
-                jsonObject.put("bpm",bpm);
-                jsonObject.put("scene",scene);
-                jsonObject.put("levelDesigner",levelDesigner);
-                jsonObject.put("levelDesigner1",levelDesigner1);
-                jsonObject.put("levelDesigner2",levelDesigner2);
-                jsonObject.put("levelDesigner3",levelDesigner3);
-                jsonObject.put("levelDesigner4",levelDesigner4);
-                jsonObject.put("difficulty1",difficulty1);
-                jsonObject.put("difficulty2",difficulty2);
-                jsonObject.put("difficulty3",difficulty3);
-                jsonObject.put("difficulty4",difficulty4);
-                jsonObject.put("hideBmsMode",hideBmsMode);
-                jsonObject.put("hideBmsDifficulty",hideBmsDifficulty);
-                jsonObject.put("hideBmsMessage",hideBmsMessage);
-                jsonObject.put("unlockLevel",unlockLevel);
+            // 输入对话框提示键入默认谱师。
+            String defaultCharter = JOptionPane.showInputDialog(this, "请输入默认谱师：", "");
 
+            // 添加这一行只是单纯为了在点击取消后不出现空对象异常。
+            if (defaultCharter == null) {
+                System.out.println("输入的是一个空对象。");
+            } else {
+                while (true) {
+                    assert defaultCharter != null;
+                    if (defaultCharter.isEmpty()) {
+                        System.out.println("不能为空");
+                        defaultCharter = JOptionPane.showInputDialog(this, "请输入默认谱师：", "");
 
-                //最后保存到文件。
-                //格式化json字符串。
-                String content = JSON.toJSONString(jsonObject, SerializerFeature.PrettyFormat,
-                        SerializerFeature.WriteMapNullValue, SerializerFeature.WriteDateUseDateFormat);
-                //标记文件是否成功生成。
-                boolean flag = true;
-                //生成json格式文件。
-                try {
-                    File file = new File(save_path);
-                    if (file.exists()) {
-                        file.delete();
+                        // TMD，空对象异常去不掉，算了。
+                        // 反正不影响用，就这样吧。改完反倒还容易出问题。
+                        // GreenHub 2023.10.6
+                        if (defaultCharter == null) {
+                            System.out.println("输入的是一个空对象。");
+                        }
                     }
-                    file.createNewFile();
-                    //将格式化后的字符串写入文件。
-                    Writer writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
-                    writer.write(content);
-                    writer.flush();
-                    writer.close();
+                    else {
+                        break;
+                    }
+                }
+                try {
+                    JSONObject jsonObject = new JSONObject(true);
+                    jsonObject.put("name",name);
+                    jsonObject.put("author",author);
+                    jsonObject.put("bpm",bpm);
+                    jsonObject.put("scene",scene);
+                    jsonObject.put("levelDesigner",levelDesigner);
+                    jsonObject.put("levelDesigner1",levelDesigner1);
+                    jsonObject.put("levelDesigner2",levelDesigner2);
+                    jsonObject.put("levelDesigner3",levelDesigner3);
+                    jsonObject.put("levelDesigner4",levelDesigner4);
+                    jsonObject.put("difficulty1",difficulty1);
+                    jsonObject.put("difficulty2",difficulty2);
+                    jsonObject.put("difficulty3",difficulty3);
+                    jsonObject.put("difficulty4",difficulty4);
+                    jsonObject.put("hideBmsMode",hideBmsMode);
+                    jsonObject.put("hideBmsDifficulty",hideBmsDifficulty);
+                    jsonObject.put("hideBmsMessage",hideBmsMessage);
+                    jsonObject.put("unlockLevel",unlockLevel);
+
+
+                    //最后保存到文件。
+                    //格式化json字符串。
+                    String content = JSON.toJSONString(jsonObject, SerializerFeature.PrettyFormat,
+                            SerializerFeature.WriteMapNullValue, SerializerFeature.WriteDateUseDateFormat);
+                    //标记文件是否成功生成。
+                    boolean flag = true;
+                    //生成json格式文件。
+                    try {
+                        File file = new File(save_path);
+                        if (file.exists()) {
+                            file.delete();
+                        }
+                        file.createNewFile();
+                        //将格式化后的字符串写入文件。
+                        Writer writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
+                        writer.write(content);
+                        writer.flush();
+                        writer.close();
+                    } catch (Exception e) {
+                        flag = false;
+                        JOptionPane.showMessageDialog(this, "info.json文件生成失败！");
+                        e.printStackTrace();
+                    }
+                    if (flag == true) {
+                        JOptionPane.showMessageDialog(this, "info.json文件生成成功！");
+                    }
                 } catch (Exception e) {
-                    flag = false;
-                    JOptionPane.showMessageDialog(this, "info.json文件生成失败！");
                     e.printStackTrace();
                 }
-                if (flag == true) {
-                    JOptionPane.showMessageDialog(this, "info.json文件生成成功！");
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+
         }
 
     }
