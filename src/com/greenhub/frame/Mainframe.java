@@ -88,7 +88,7 @@ public class Mainframe extends JFrame implements ActionListener {
     //全局变量。
     private String video_file_name = "";
     public Mainframe() {
-        this.setTitle("info.json生成器v0.3  Code by GreenHub");
+        this.setTitle("info.json生成器v0.3.2  Code by GreenHub");
         this.setSize(1200,600);
         this.setLocation(350,120);
         this.setLayout(new BorderLayout());
