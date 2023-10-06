@@ -635,7 +635,7 @@ public class Mainframe extends JFrame implements ActionListener {
                         defaultCharter = JOptionPane.showInputDialog(this, "请输入默认谱师：", "");
 
                         // TMD，空对象异常去不掉，算了。
-                        // 反正不影响用，就这样吧。改完反倒还容易出问题。
+                        // 反正不影响用，就这样吧。改完反倒还容易出问题。0
                         // GreenHub 2023.10.6
                         if (defaultCharter == null) {
                             System.out.println("输入的是一个空对象。");
