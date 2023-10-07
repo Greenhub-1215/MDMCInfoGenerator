@@ -631,21 +631,36 @@ public class Mainframe extends JFrame implements ActionListener {
                 while (true) {
                     assert defaultCharter != null;
                     if (defaultCharter.isEmpty()) {
-                        System.out.println("不能为空");
+                        JOptionPane.showMessageDialog(this, "默认谱师不能为空！");
                         defaultCharter = JOptionPane.showInputDialog(this, "请输入默认谱师：", "");
 
+
                         // TMD，空对象异常去不掉，算了。
-                        // 反正不影响用，就这样吧。改完反倒还容易出问题。0
-                        // GreenHub 2023.10.6
+                        // 反正不影响用，就这样吧。改完反倒还容易出问题。
+                        // GreenHub 2023.10.7
                         if (defaultCharter == null) {
                             System.out.println("输入的是一个空对象。");
                         }
                     }
                     else {
+                        levelDesigner = defaultCharter;
                         break;
                     }
                 }
                 try {
+                    // 增加对?字段的判断。
+                    if (levelDesigner1.equals("?")) {
+                        levelDesigner1 = defaultCharter;
+                    }
+                    if (levelDesigner2.equals("?")) {
+                        levelDesigner2 = defaultCharter;
+                    }
+                    if (levelDesigner3.equals("?")) {
+                        levelDesigner3 = defaultCharter;
+                    }
+                    if (levelDesigner4.equals("?")) {
+                        levelDesigner4 = defaultCharter;
+                    }
                     JSONObject jsonObject = new JSONObject(true);
                     jsonObject.put("name",name);
                     jsonObject.put("author",author);
