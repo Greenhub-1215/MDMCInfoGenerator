@@ -10,6 +10,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.greenhub.entity.ChartInfo;
+import com.greenhub.frame.AddTagFrame;
 
 public class Mainframe extends JFrame implements ActionListener {
     //title panel components.
@@ -22,6 +23,7 @@ public class Mainframe extends JFrame implements ActionListener {
     private JLabel input_choice = new JLabel("请选择模式：");
     private ButtonGroup choice = new ButtonGroup();
     //两个单选按钮，分别是从文件夹导入和手动填充。
+    //手动填充功能已经禁用，目前只允许通过bms文件修改歌曲信息。
     private JRadioButton folder_input = new JRadioButton("从文件夹导入");
     private JRadioButton text_input = new JRadioButton("手动输入");
     //存放文件路径的文本框，打开浏览文件夹位置的按钮以及填充信息。
@@ -65,6 +67,7 @@ public class Mainframe extends JFrame implements ActionListener {
 
     //底部窗体，填写解锁里谱面的info，以及控制面板。
     private JPanel bottom_panel = new JPanel();
+
     private JPanel hidden_info_panel = new JPanel();
     private JPanel control_panel = new JPanel();
 
@@ -77,6 +80,7 @@ public class Mainframe extends JFrame implements ActionListener {
     private JComboBox<String> hidden_unlock_level = new JComboBox<>();
     private JButton hidden_level_help = new JButton("帮助");
     //执行操作按钮。
+    private JButton search_tag_generate = new JButton("编辑SearchTag");
     private JButton generate = new JButton("生成info.json文件");
     private JButton generate_cinema = new JButton("生成cinema.json文件");
     private JButton about = new JButton("关于...");
@@ -88,8 +92,8 @@ public class Mainframe extends JFrame implements ActionListener {
     //全局变量。
     private String video_file_name = "";
     public Mainframe() {
-        this.setTitle("info.json生成器v0.3.2  Code by GreenHub");
-        this.setSize(1200,600);
+        this.setTitle("info.json生成器v0.4.0  Code by GreenHub");
+        this.setSize(1200,580);
         this.setLocation(350,120);
         this.setLayout(new BorderLayout());
         this.add(title_panel, BorderLayout.NORTH);
@@ -208,7 +212,8 @@ public class Mainframe extends JFrame implements ActionListener {
             item_main_panel[i].add(difficulty_panel[i]);
             item_main_panel[i].add(level_panel[i]);
 
-            //在默认状态下，如果从文件夹导入的话，默认的曲目信息文本输入框处于禁用状态。
+            // 在默认状态下，如果从文件夹导入的话，默认的曲目信息文本输入框处于禁用状态。
+            // 禁止了从程序输入的功能，因为不可控的因素太多了。
             song_title_text[i].setEditable(false);
             author_text[i].setEditable(false);
             chart_design_text[i].setEditable(false);
@@ -227,7 +232,7 @@ public class Mainframe extends JFrame implements ActionListener {
         bottom_panel.add(control_panel);
         hidden_info_panel.setLayout(new FlowLayout());
         control_panel.setLayout(new FlowLayout());
-        //设置字体。
+        // 设置字体。
         tips.setFont(mainFont);
         tips_text.setFont(mainFont);
         unlock_action.setFont(mainFont);
@@ -242,9 +247,12 @@ public class Mainframe extends JFrame implements ActionListener {
         hidden_unlock_level.addItem("- 请选择 -");
         generate.setFont(mainFont);
         generate_cinema.setFont(mainFont);
+        search_tag_generate.setFont(mainFont);
         about.setFont(mainFont);
         random.setFont(mainFont);
         exit.setFont(mainFont);
+
+
         hidden_info_panel.add(tips);
         hidden_info_panel.add(tips_text);
         hidden_info_panel.add(unlock_action_label);
@@ -255,17 +263,20 @@ public class Mainframe extends JFrame implements ActionListener {
         hidden_level_help.setToolTipText("不知道怎么填？点我！！");
         control_panel.add(generate);
         control_panel.add(generate_cinema);
+        control_panel.add(search_tag_generate);
         control_panel.add(about);
 //        control_panel.add(random);
         control_panel.add(exit);
         generate.addActionListener(this);
         generate_cinema.addActionListener(this);
         hidden_level_help.addActionListener(this);
+        search_tag_generate.addActionListener(this);
         about.addActionListener(this);
         random.addActionListener(this);
         exit.addActionListener(this);
         generate.setEnabled(false);
         generate_cinema.setEnabled(false);
+        search_tag_generate.setEnabled(false);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setResizable(false);
         this.setVisible(true);
@@ -316,12 +327,17 @@ public class Mainframe extends JFrame implements ActionListener {
         if (actionEvent.getSource() == input) {
             String path = file_directory.getText();
             if (!path.isEmpty()) {
+                save_config_file();
                 generate.setEnabled(true);
+                search_tag_generate.setEnabled(true);
             }
             info_input(path);
         }
         if (actionEvent.getSource() == hidden_level_help) {
             getHelp();
+        }
+        if (actionEvent.getSource() == search_tag_generate) {
+            new AddTagFrame();
         }
         if (actionEvent.getSource() == generate) {
             json_generate(file_directory.getText() + "\\info.json");
@@ -338,11 +354,6 @@ public class Mainframe extends JFrame implements ActionListener {
         if (actionEvent.getSource() == exit) {
             System.exit(0);
         }
-    }
-
-    public static void main(String[] args) {
-        //不用我多说你也明白的。
-        new Mainframe();
     }
 
     //读取到对应文件后执行的操作。
@@ -369,18 +380,12 @@ public class Mainframe extends JFrame implements ActionListener {
             if (fileList[i].equals("map1.bms")) {
                 map1_tag++;
             }
-        }
-        for (int i = 0;i < fileList.length;i ++) {
             if (fileList[i].equals("map2.bms")) {
                 map2_tag++;
             }
-        }
-        for (int i = 0;i < fileList.length;i ++) {
             if (fileList[i].equals("map3.bms")) {
                 map3_tag++;
             }
-        }
-        for (int i = 0;i < fileList.length;i ++) {
             if (fileList[i].equals("map4.bms")) {
                 map4_tag++;
             }
@@ -638,6 +643,7 @@ public class Mainframe extends JFrame implements ActionListener {
                         // TMD，空对象异常去不掉，算了。
                         // 反正不影响用，就这样吧。改完反倒还容易出问题。
                         // GreenHub 2023.10.7
+
                         if (defaultCharter == null) {
                             System.out.println("输入的是一个空对象。");
                         }
@@ -774,6 +780,37 @@ public class Mainframe extends JFrame implements ActionListener {
 
 
     }
+
+    public void save_config_file() {
+        String config_path = System.getProperty("user.dir");
+        String chart_path = file_directory.getText();
+        try {
+            JSONObject jsonObject = new JSONObject(true);
+            jsonObject.put("chart_path",chart_path);
+            //格式化json字符串。
+            String content = JSON.toJSONString(jsonObject, SerializerFeature.PrettyFormat,
+                    SerializerFeature.WriteMapNullValue, SerializerFeature.WriteDateUseDateFormat);
+            boolean flag = true;
+            //生成json格式文件。
+            try {
+                File file = new File(config_path + "\\config.json");
+                if (file.exists()) {
+                    file.delete();
+                }
+                file.createNewFile();
+                //将格式化后的字符串写入文件。
+                Writer writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
+                writer.write(content);
+                writer.flush();
+                writer.close();
+            } catch (Exception e) {
+                flag = false;
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     //About页面的JDialog界面
     public void ShowDialog() {
         JDialog jDialog = new JDialog();
@@ -887,4 +924,8 @@ public class Mainframe extends JFrame implements ActionListener {
 
     }
 
+    public static void main(String[] args) {
+        //不用我多说你也明白的。
+        new Mainframe();
+    }
 }
