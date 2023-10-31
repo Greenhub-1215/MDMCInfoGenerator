@@ -147,13 +147,24 @@ public class AddTagFrame extends JDialog implements ActionListener{
                 File file = search_tag_chooser.getSelectedFile();
                 String file_path = file.toString();
                 search_tag_load(file_path);
-                title = "*添加搜索Tag";
-                this.setTitle(title);
+                if (!file_path.isEmpty()) {
+                    title = "*添加搜索Tag";
+                    this.setTitle(title);
+                }
             }
         }
         if (e.getSource() == exit) {
             // 检测文件是否保存，如果没有保存则提示用户是否保存。
-            this.dispose();
+            if (Objects.equals(title, "*添加搜索Tag")) {
+                int result = JOptionPane.showConfirmDialog(null,"您尚未保存对searchTag的更改，是否保存？","",JOptionPane.YES_NO_CANCEL_OPTION);
+                if (result == JOptionPane.YES_OPTION) {
+                    search_tag_save();
+                } else if (result == JOptionPane.NO_OPTION) {
+                    this.dispose();
+                }
+            } else {
+                this.dispose();
+            }
         }
     }
     

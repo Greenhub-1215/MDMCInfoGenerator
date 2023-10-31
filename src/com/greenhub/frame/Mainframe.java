@@ -92,7 +92,7 @@ public class Mainframe extends JFrame implements ActionListener {
     //全局变量。
     private String video_file_name = "";
     public Mainframe() {
-        this.setTitle("info.json生成器v0.4.0  Code by GreenHub");
+        this.setTitle("info.json生成器v0.4.0 Beta Code by GreenHub");
         this.setSize(1200,580);
         this.setLocation(350,120);
         this.setLayout(new BorderLayout());
@@ -563,6 +563,7 @@ public class Mainframe extends JFrame implements ActionListener {
         String hideBmsDifficulty = "0"; //well, it is not useless.
         String hideBmsMessage = "demo created by GreenHub.";
         String unlockLevel = "0";       //useless parameter.
+        String[] searchTags;
         //find the first textfield that is not blank.
         for (int i = 0;i < 4;i ++) {
             if (!song_title_text[i].getText().isEmpty()) {
@@ -667,6 +668,11 @@ public class Mainframe extends JFrame implements ActionListener {
                     if (levelDesigner4.equals("?")) {
                         levelDesigner4 = defaultCharter;
                     }
+
+                    // 读取根目录的search.json文件，并取出其中的内容，将其写入到search数组中。
+                    // 麻了，这周要做ppt，还TM两个！！
+                    // 下周汇报完把最后的功能完工，主体基本差不多了，再稍微改改就可以丢给群友做Beta测试了。
+
                     JSONObject jsonObject = new JSONObject(true);
                     jsonObject.put("name",name);
                     jsonObject.put("author",author);
