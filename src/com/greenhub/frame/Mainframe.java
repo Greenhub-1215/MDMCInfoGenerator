@@ -11,6 +11,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.greenhub.entity.ChartInfo;
 import com.greenhub.frame.AddTagFrame;
+import net.sf.json.JSONArray;
 
 public class Mainframe extends JFrame implements ActionListener {
     //title panel components.
@@ -563,7 +564,7 @@ public class Mainframe extends JFrame implements ActionListener {
         String hideBmsDifficulty = "0"; //well, it is not useless.
         String hideBmsMessage = "demo created by GreenHub.";
         String unlockLevel = "0";       //useless parameter.
-        String[] searchTags;
+        String[] searchTags = null;
         //find the first textfield that is not blank.
         for (int i = 0;i < 4;i ++) {
             if (!song_title_text[i].getText().isEmpty()) {
@@ -670,9 +671,16 @@ public class Mainframe extends JFrame implements ActionListener {
                     }
 
                     // 读取根目录的search.json文件，并取出其中的内容，将其写入到search数组中。
-                    // 麻了，这周要做ppt，还TM两个！！
-                    // 下周汇报完把最后的功能完工，主体基本差不多了，再稍微改改就可以丢给群友做Beta测试了。
+                    // PPT提前完工了，有时间把最后一段代码完工，不用等到下周了。
+                    // 再稍微改改就可以丢给群友做Beta测试了。
 
+                    // 读取根目录中的search.json的内容。
+                    File search_file = new File(file_directory.getText() + "\\search.json");
+                    if (search_file.exists()) {
+                        searchTags = search_tag_load(file_directory.getText() + "\\search.json");
+                    } else {
+                        searchTags = new String[0];
+                    }
                     JSONObject jsonObject = new JSONObject(true);
                     jsonObject.put("name",name);
                     jsonObject.put("author",author);
@@ -691,6 +699,7 @@ public class Mainframe extends JFrame implements ActionListener {
                     jsonObject.put("hideBmsDifficulty",hideBmsDifficulty);
                     jsonObject.put("hideBmsMessage",hideBmsMessage);
                     jsonObject.put("unlockLevel",unlockLevel);
+                    jsonObject.put("searchTags",searchTags);
 
 
                     //最后保存到文件。
@@ -930,6 +939,34 @@ public class Mainframe extends JFrame implements ActionListener {
 
     }
 
+    // 读取search.json文件。
+    public String[] search_tag_load(String path) {
+        // 读取config文件，并将其内容放置在search.json文件中。
+        StringBuilder tags_builder = new StringBuilder();
+        String tag_json = null;
+        String[] tags_list = null;
+        File file2 = new File(path);
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(file2));
+            String s = null;
+            while ((s = bufferedReader.readLine()) != null) {
+                tags_builder.append(System.lineSeparator() + s);
+            }
+            bufferedReader.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        tag_json = tags_builder.toString();
+        net.sf.json.JSONObject tags = net.sf.json.JSONObject.fromObject(tag_json);
+        if (tags.containsKey("searchTags")) {
+            JSONArray tags_list_json = tags.getJSONArray("searchTags");
+            tags_list = new String[tags_list_json.size()];
+            for (int i = 0;i < tags_list_json.size();i ++) {
+                tags_list[i] = tags_list_json.getString(i);
+            }
+        }
+        return tags_list;
+    }
     public static void main(String[] args) {
         //不用我多说你也明白的。
         new Mainframe();
