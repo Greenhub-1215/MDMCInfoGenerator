@@ -11,6 +11,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.greenhub.entity.ChartInfo;
 import com.greenhub.frame.AddTagFrame;
+import com.greenhub.utils.*;
 import net.sf.json.JSONArray;
 
 public class Mainframe extends JFrame implements ActionListener {
@@ -70,6 +71,7 @@ public class Mainframe extends JFrame implements ActionListener {
     private JPanel bottom_panel = new JPanel();
 
     private JPanel hidden_info_panel = new JPanel();
+    private JPanel special_effects_panel = new JPanel();
     private JPanel control_panel = new JPanel();
 
     //解锁里谱面的信息info组件。
@@ -80,6 +82,22 @@ public class Mainframe extends JFrame implements ActionListener {
     private JLabel hidden_unlock_level_label = new JLabel("里谱解锁等级");
     private JComboBox<String> hidden_unlock_level = new JComboBox<>();
     private JButton hidden_level_help = new JButton("帮助");
+    
+    // 特效按钮
+    private JCheckBox christmas = new JCheckBox("启用圣诞场景");
+    private ButtonGroup sceneGroup = new ButtonGroup();
+    /**
+     * 添加不同的特效按钮，默认为无。
+     * */
+    private JLabel scene_title = new JLabel("特效按钮      ");
+    private JRadioButton scene_None = new JRadioButton("无");
+    private JRadioButton scene_Cytus = new JRadioButton("启用Cytus彩蛋");
+    private JRadioButton scene_Wacca = new JRadioButton("启用Wacca彩蛋");
+    private JRadioButton scene_Touhou = new JRadioButton("启用东方彩蛋");
+    private JRadioButton scene_BadApple = new JRadioButton("启用Bad Apple特效");
+    private JRadioButton scene_Christmas = new JRadioButton("启用圣诞场景");
+    
+    
     //执行操作按钮。
     private JButton search_tag_generate = new JButton("编辑SearchTag");
     private JButton generate = new JButton("生成info.json文件");
@@ -90,10 +108,15 @@ public class Mainframe extends JFrame implements ActionListener {
 
     //secret counter.
     private int count = 1;
+    
+    
     //全局变量。
     private String video_file_name = "";
+    // 记录日志变量，如果程序执行没有出错，那么就不生成log文件，否则生成文件，并将其保存到指定的文件路径。
+    private String log_temp = "";
+    
     public Mainframe() {
-        this.setTitle("info.json生成器v0.4.0 Beta Code by GreenHub");
+        this.setTitle("info.json生成器v0.4.6 Code by GreenHub");
         this.setSize(1200,580);
         this.setLocation(350,120);
         this.setLayout(new BorderLayout());
@@ -228,8 +251,9 @@ public class Mainframe extends JFrame implements ActionListener {
 
         //BorderLayout.SOUTH.
         this.add(bottom_panel, BorderLayout.SOUTH);
-        bottom_panel.setLayout(new GridLayout(2,1));
+        bottom_panel.setLayout(new GridLayout(3,1));
         bottom_panel.add(hidden_info_panel);
+        bottom_panel.add(special_effects_panel);
         bottom_panel.add(control_panel);
         hidden_info_panel.setLayout(new FlowLayout());
         control_panel.setLayout(new FlowLayout());
@@ -241,6 +265,13 @@ public class Mainframe extends JFrame implements ActionListener {
         hidden_unlock_level_label.setFont(mainFont);
         hidden_unlock_level.setFont(mainFont);
         hidden_level_help.setFont(mainFont);
+        scene_title.setFont(mainFont);
+        scene_None.setFont(mainFont);
+        scene_Cytus.setFont(mainFont);
+        scene_Wacca.setFont(mainFont);
+        scene_Touhou.setFont(mainFont);
+        scene_BadApple.setFont(mainFont);
+        scene_Christmas.setFont(mainFont);
         tips_text.setEditable(false);
         unlock_action.setEnabled(false);
         unlock_action.addItem("- 请选择 -");
@@ -254,6 +285,33 @@ public class Mainframe extends JFrame implements ActionListener {
         exit.setFont(mainFont);
 
 
+        // sceneEgg特效选择按钮。
+        special_effects_panel.setLayout(new FlowLayout());
+        sceneGroup.add(scene_None);
+        sceneGroup.add(scene_Cytus);
+        sceneGroup.add(scene_Wacca);
+        sceneGroup.add(scene_Touhou);
+        sceneGroup.add(scene_BadApple);
+        sceneGroup.add(scene_Christmas);
+        special_effects_panel.add(scene_title);
+        special_effects_panel.add(scene_None);
+        special_effects_panel.add(scene_Cytus);
+        special_effects_panel.add(scene_Wacca);
+        special_effects_panel.add(scene_Touhou);
+        special_effects_panel.add(scene_BadApple);
+        special_effects_panel.add(scene_Christmas);
+        scene_None.setSelected(true);
+        
+        // 启动后，默认禁用按钮组的全部按钮。
+        scene_None.setEnabled(false);
+        scene_Cytus.setEnabled(false);
+        scene_Wacca.setEnabled(false);
+        scene_Touhou.setEnabled(false);
+        scene_BadApple.setEnabled(false);
+        scene_Christmas.setEnabled(false);
+
+        
+        // 里谱面板，在这里配置里谱的相应的信息。
         hidden_info_panel.add(tips);
         hidden_info_panel.add(tips_text);
         hidden_info_panel.add(unlock_action_label);
@@ -278,6 +336,7 @@ public class Mainframe extends JFrame implements ActionListener {
         generate.setEnabled(false);
         generate_cinema.setEnabled(false);
         search_tag_generate.setEnabled(false);
+        christmas.setEnabled(false);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setResizable(false);
         this.setVisible(true);
@@ -313,17 +372,25 @@ public class Mainframe extends JFrame implements ActionListener {
             browser.setEnabled(true);
         }
         if (actionEvent.getSource() == browser) {
-            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            int folder_choose = fileChooser.showOpenDialog(null);
-            File file = fileChooser.getSelectedFile();
-            String files = "";
-            files = file.toString();
-            file_directory.setText(files);
-            if (files != "") {
-                input.setEnabled(true);
-            } else {
-                input.setEnabled(false);
-            }
+        	try {
+        		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        		int folder_choose = fileChooser.showOpenDialog(null);
+        		File file = fileChooser.getSelectedFile();
+        		String files = "";
+        		files = file.toString();
+        		file_directory.setText(files);
+        		if (files != "") {
+        			input.setEnabled(true);
+        		} else {
+        			input.setEnabled(false);
+        		}
+        	} catch (Exception e) {
+        		utils tools = new utils();
+            	String logs = "程序运行时出现错误，建议把错误日志反馈GreenHub，并给他一巴掌叫他起床修bug！\n\n" + tools.getLog(e);
+            	log_temp += tools.getLog(e);
+            	// JOptionPane.showMessageDialog(null, logs, "错误！", JOptionPane.ERROR_MESSAGE);
+        	}
+            
         }
         if (actionEvent.getSource() == input) {
             String path = file_directory.getText();
@@ -352,8 +419,18 @@ public class Mainframe extends JFrame implements ActionListener {
         if (actionEvent.getSource() == random) {
             secretButton();
         }
-        if (actionEvent.getSource() == exit) {
-            System.exit(0);
+        if (actionEvent.getSource() == exit) {	
+        	File directory = new File("");//参数为空
+        	utils tools = new utils();
+        	try {
+				String courseFile = directory.getCanonicalPath();
+				System.exit(1);
+			} catch (IOException e) {
+            	String logs = "程序运行时出现错误，建议把错误日志反馈GreenHub，并给他一巴掌叫他起床修bug！\n\n" + tools.getLog(e);
+            	log_temp += tools.getLog(e);
+            	JOptionPane.showMessageDialog(null, logs, "错误！", JOptionPane.ERROR_MESSAGE);
+			}
+            
         }
     }
 
@@ -408,7 +485,8 @@ public class Mainframe extends JFrame implements ActionListener {
         } else {
             generate_cinema.setEnabled(false);
         }
-        if (map1_tag == 1) {
+        try {
+        	if (map1_tag == 1) {
             tips += "萌新（Easy） ";
             String temp_path = folder_path + "\\" + "map1.bms";
             chartInfo = getInfo(temp_path);
@@ -493,6 +571,53 @@ public class Mainframe extends JFrame implements ActionListener {
             unlock_action.setEnabled(false);
             hidden_unlock_level.setEnabled(false);
         }
+        
+        // 对于选择的背景进行检测，解锁对应的单选按钮。
+        if (scene_text[0].getText().equals("scene_05") || scene_text[1].getText().equals("scene_05") || 
+        		scene_text[2].getText().equals("scene_05") ||scene_text[3].getText().equals("scene_05")) {
+        	scene_None.setEnabled(true);
+        	scene_Cytus.setEnabled(true);
+        	scene_Wacca.setEnabled(true);
+        	scene_Touhou.setEnabled(true);
+        	scene_BadApple.setEnabled(false);
+        	scene_Christmas.setEnabled(true);
+        } else {
+        	if (scene_text[0].getText().equals("scene_08") || scene_text[1].getText().equals("scene_08") || 
+        		scene_text[2].getText().equals("scene_08") ||scene_text[3].getText().equals("scene_08")) {
+        		scene_None.setEnabled(true);
+            	scene_Cytus.setEnabled(false);
+            	scene_Wacca.setEnabled(false);
+            	scene_Touhou.setEnabled(false);
+            	scene_BadApple.setEnabled(true);
+            	scene_Christmas.setEnabled(false);
+        	} else {
+        		if ((scene_text[0].getText().equals("scene_07") || scene_text[1].getText().equals("scene_07") || scene_text[2].getText().equals("scene_07") ||scene_text[3].getText().equals("scene_07"))
+        				|| (scene_text[0].getText().equals("scene_09") || scene_text[1].getText().equals("scene_09") || 
+                        		scene_text[2].getText().equals("scene_09") ||scene_text[3].getText().equals("scene_09")) || (scene_text[0].getText().equals("scene_10") || scene_text[1].getText().equals("scene_10") || 
+                                		scene_text[2].getText().equals("scene_10") ||scene_text[3].getText().equals("scene_10"))) {
+        			scene_None.setEnabled(true);
+                	scene_Cytus.setEnabled(false);
+                	scene_Wacca.setEnabled(false);
+                	scene_Touhou.setEnabled(false);
+                	scene_BadApple.setEnabled(false);
+                	scene_Christmas.setEnabled(false);
+        		} else {
+        			scene_None.setEnabled(true);
+        			scene_Cytus.setEnabled(true);
+        			scene_Wacca.setEnabled(true);
+        			scene_Touhou.setEnabled(true);
+        			scene_BadApple.setEnabled(false);
+        			scene_Christmas.setEnabled(false);
+        		}
+        	}
+        }
+        } catch (Exception e) {
+        	utils tools = new utils();
+        	String logs = "程序运行时出现错误，建议把错误日志反馈GreenHub，并给他一巴掌叫他起床修bug！\n\n" + tools.getLog(e);
+        	log_temp += tools.getLog(e);
+        	JOptionPane.showMessageDialog(null, logs, "错误！", JOptionPane.ERROR_MESSAGE);
+        }
+        
 
     }
 
@@ -518,28 +643,40 @@ public class Mainframe extends JFrame implements ActionListener {
             }
             bufferedReader.close();
         } catch (Exception e) {
-            e.printStackTrace();
+        	utils tools = new utils();
+        	String logs = "程序运行时出现错误，建议把错误日志反馈GreenHub，并给他一巴掌叫他起床修bug！\n\n" + tools.getLog(e);
+        	JOptionPane.showMessageDialog(null, logs, "错误！", JOptionPane.ERROR_MESSAGE);
         }
-        file_text = textInfo.toString();
-        song_title = file_text.substring(file_text.indexOf("#TITLE ") + 7, file_text.indexOf("#ART"));
-        author = file_text.substring(file_text.indexOf("#ARTIST ") + 8, file_text.indexOf("#LEV"));
-        chart_design = file_text.substring(file_text.indexOf("#LEVELDESIGN ") + 13, file_text.indexOf("#BPM"));
-        scene = file_text.substring(file_text.indexOf("#GENRE ") + 7, file_text.indexOf("#TIT"));
-        bpm = file_text.substring(file_text.indexOf("#BPM ") + 5, file_text.indexOf("#PLAYLEVEL"));
-        difficulty = file_text.substring(file_text.indexOf("#RANK ") + 6, file_text.indexOf("#LN"));
-        level = file_text.substring(file_text.indexOf("#PLAYLEVEL ") + 11, file_text.indexOf("#RAN"));
-
-        //去除换行符\r,\n
-        song_title = song_title.replaceAll("\r|\n","");
-        author = author.replaceAll("\r|\n","");
-        chart_design = chart_design.replaceAll("\r|\n","");
-        scene = scene.replaceAll("\r|\n","");
-        bpm = bpm.replaceAll("\r|\n","");
-        difficulty = difficulty.replaceAll("\r|\n","");
-        level = level.replaceAll("\r|\n","");
-        ChartInfo chartInfo = new ChartInfo(song_title, author, chart_design, scene, bpm, difficulty, level);
-        System.out.println(chartInfo.toString());
-        return chartInfo;
+        try {
+        	file_text = textInfo.toString();
+        	song_title = file_text.substring(file_text.indexOf("#TITLE ") + 7, file_text.indexOf("#ART"));
+        	author = file_text.substring(file_text.indexOf("#ARTIST ") + 8, file_text.indexOf("#LEV"));
+        	chart_design = file_text.substring(file_text.indexOf("#LEVELDESIGN ") + 13, file_text.indexOf("#BPM"));
+        	scene = file_text.substring(file_text.indexOf("#GENRE ") + 7, file_text.indexOf("#TIT"));
+        	bpm = file_text.substring(file_text.indexOf("#BPM ") + 5, file_text.indexOf("#PLAYLEVEL"));
+        	difficulty = file_text.substring(file_text.indexOf("#RANK ") + 6, file_text.indexOf("#LN"));
+        	level = file_text.substring(file_text.indexOf("#PLAYLEVEL ") + 11, file_text.indexOf("#RAN"));
+        	
+        	//去除换行符\r,\n
+            song_title = song_title.replaceAll("\r|\n","");
+            author = author.replaceAll("\r|\n","");
+            chart_design = chart_design.replaceAll("\r|\n","");
+            scene = scene.replaceAll("\r|\n","");
+            bpm = bpm.replaceAll("\r|\n","");
+            difficulty = difficulty.replaceAll("\r|\n","");
+            level = level.replaceAll("\r|\n","");
+            
+            ChartInfo chartInfo = new ChartInfo(song_title, author, chart_design, scene, bpm, difficulty, level);
+            System.out.println(chartInfo.toString());
+            return chartInfo;
+        } catch (Exception e) {
+        	utils tools = new utils();
+        	String logs = "程序运行时出现错误，建议把错误日志反馈GreenHub，并给他一巴掌叫他起床修bug！\n\n" + tools.getLog(e);
+        	log_temp += tools.getLog(e);
+        	JOptionPane.showMessageDialog(null, logs, "错误！", JOptionPane.ERROR_MESSAGE);
+        	return null;
+        } 
+        
     }
 
     //对已经输入的输入项进行检查，以保证多张谱面是来自同一个曲目。
@@ -675,9 +812,10 @@ public class Mainframe extends JFrame implements ActionListener {
                     // 再稍微改改就可以丢给群友做Beta测试了。
 
                     // 读取根目录中的search.json的内容。
-                    File search_file = new File(file_directory.getText() + "\\search.json");
+                    String search_file_path = file_directory.getText() + "\\search.json";
+                    File search_file = new File(search_file_path);
                     if (search_file.exists()) {
-                        searchTags = search_tag_load(file_directory.getText() + "\\search.json");
+                        searchTags = search_tag_load(search_file_path);
                     } else {
                         searchTags = new String[0];
                     }
@@ -700,8 +838,29 @@ public class Mainframe extends JFrame implements ActionListener {
                     jsonObject.put("hideBmsMessage",hideBmsMessage);
                     jsonObject.put("unlockLevel",unlockLevel);
                     jsonObject.put("searchTags",searchTags);
-
-
+                    
+                    // 判断Christmas是否被选中，如果选中，添加对应的参数。
+                    // 后续看了一下CA的仓库，发现了更多的参数。
+                    if (scene_None.isSelected()) {
+                    	jsonObject.put("sceneEgg", "none");
+                    }
+                    if (scene_Cytus.isSelected()) {
+                    	jsonObject.put("sceneEgg", "cytus");
+                    }
+                    if (scene_Wacca.isSelected()) {
+                    	jsonObject.put("sceneEgg", "wacca");
+                    }
+                    if (scene_Touhou.isSelected()) {
+                    	jsonObject.put("sceneEgg", "touhou");
+                    }
+                    if (scene_BadApple.isSelected()) {
+                    	jsonObject.put("sceneEgg", "badapple");
+                    }
+                    if (scene_Christmas.isSelected()) {
+                    	jsonObject.put("sceneEgg", "christmas");
+                    }
+                    
+                    
                     //最后保存到文件。
                     //格式化json字符串。
                     String content = JSON.toJSONString(jsonObject, SerializerFeature.PrettyFormat,
@@ -722,14 +881,19 @@ public class Mainframe extends JFrame implements ActionListener {
                         writer.close();
                     } catch (Exception e) {
                         flag = false;
-                        JOptionPane.showMessageDialog(this, "info.json文件生成失败！");
-                        e.printStackTrace();
+                        utils tools = new utils();
+                    	String logs = "程序运行时出现错误，建议把错误日志反馈GreenHub，并给他一巴掌叫他起床修bug！\n\n" + tools.getLog(e);
+                    	log_temp += tools.getLog(e);
+                    	JOptionPane.showMessageDialog(null, logs, "错误！", JOptionPane.ERROR_MESSAGE);
                     }
                     if (flag == true) {
                         JOptionPane.showMessageDialog(this, "info.json文件生成成功！");
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                	utils tools = new utils();
+                	String logs = "程序运行时出现错误，建议把错误日志反馈GreenHub，并给他一巴掌叫他起床修bug！\n\n" + tools.getLog(e);
+                	log_temp += tools.getLog(e);
+                	JOptionPane.showMessageDialog(null, logs, "错误！", JOptionPane.ERROR_MESSAGE);
                 }
             }
 
@@ -783,14 +947,19 @@ public class Mainframe extends JFrame implements ActionListener {
                 writer.close();
             } catch (Exception e) {
                 flag = false;
-                JOptionPane.showMessageDialog(this, "cinema.json文件生成失败！");
-                e.printStackTrace();
+                utils tools = new utils();
+            	String logs = "程序运行时出现错误，建议把错误日志反馈GreenHub，并给他一巴掌叫他起床修bug！\n\n" + tools.getLog(e);
+            	log_temp += tools.getLog(e);
+            	JOptionPane.showMessageDialog(null, logs, "错误！", JOptionPane.ERROR_MESSAGE);
             }
             if (flag == true) {
                 JOptionPane.showMessageDialog(this, "cinema.json文件生成成功！");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+        	utils tools = new utils();
+        	String logs = "程序运行时出现错误，建议把错误日志反馈GreenHub，并给他一巴掌叫他起床修bug！\n\n" + tools.getLog(e);
+        	log_temp += tools.getLog(e);
+        	JOptionPane.showMessageDialog(null, logs, "错误！", JOptionPane.ERROR_MESSAGE);
         }
 
 
@@ -820,10 +989,16 @@ public class Mainframe extends JFrame implements ActionListener {
                 writer.close();
             } catch (Exception e) {
                 flag = false;
-                e.printStackTrace();
+                utils tools = new utils();
+            	String logs = "程序运行时出现错误，建议把错误日志反馈GreenHub，并给他一巴掌叫他起床修bug！\n\n" + tools.getLog(e);
+            	log_temp += tools.getLog(e);
+            	JOptionPane.showMessageDialog(null, logs, "错误！", JOptionPane.ERROR_MESSAGE);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+        	utils tools = new utils();
+        	String logs = "程序运行时出现错误，建议把错误日志反馈GreenHub，并给他一巴掌叫他起床修bug！\n\n" + tools.getLog(e);
+        	log_temp += tools.getLog(e);
+        	JOptionPane.showMessageDialog(null, logs, "错误！", JOptionPane.ERROR_MESSAGE);
         }
     }
     //About页面的JDialog界面
@@ -874,7 +1049,7 @@ public class Mainframe extends JFrame implements ActionListener {
         jDialog.setVisible(true);
     }
 
-    //GreenHubの奇妙小按钮
+    // GreenHubの奇妙小按钮，鉴于这个功能真的屁用没有，我已经将其废弃，但不排除将来可能会整点什么别的活。
     // Deprecated.
     public void secretButton() {
         if (count != 100) {
@@ -954,7 +1129,10 @@ public class Mainframe extends JFrame implements ActionListener {
             }
             bufferedReader.close();
         } catch (Exception e) {
-            e.printStackTrace();
+        	utils tools = new utils();
+        	String logs = "程序运行时出现错误，建议把错误日志反馈GreenHub，并给他一巴掌叫他起床修bug！\n\n" + tools.getLog(e);
+        	log_temp += tools.getLog(e);
+        	JOptionPane.showMessageDialog(null, logs, "错误！", JOptionPane.ERROR_MESSAGE);
         }
         tag_json = tags_builder.toString();
         net.sf.json.JSONObject tags = net.sf.json.JSONObject.fromObject(tag_json);
@@ -971,4 +1149,5 @@ public class Mainframe extends JFrame implements ActionListener {
         //不用我多说你也明白的。
         new Mainframe();
     }
+    
 }
