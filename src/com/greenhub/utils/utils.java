@@ -20,7 +20,8 @@ public class utils {
 		return sb.toString();
 	}
 	
-	// 将日志输出到文件。
+	// deprecated
+	// 发现控制台后面追加参数就可以生成日志，所以此函数废弃。
 	public void generateLogs(String logs, String path) {
 		// 检测Logs文件夹是否存在，如果不存在，就创建一个。
 		File file = new File("");

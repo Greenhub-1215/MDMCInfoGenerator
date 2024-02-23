@@ -116,7 +116,7 @@ public class Mainframe extends JFrame implements ActionListener {
     private String log_temp = "";
     
     public Mainframe() {
-        this.setTitle("info.json生成器v0.4.6 Code by GreenHub");
+        this.setTitle("info.json生成器v0.4.8 Code by GreenHub");
         this.setSize(1200,580);
         this.setLocation(350,120);
         this.setLayout(new BorderLayout());
@@ -388,6 +388,7 @@ public class Mainframe extends JFrame implements ActionListener {
         		utils tools = new utils();
             	String logs = "程序运行时出现错误，建议把错误日志反馈GreenHub，并给他一巴掌叫他起床修bug！\n\n" + tools.getLog(e);
             	log_temp += tools.getLog(e);
+            	e.printStackTrace();
             	// JOptionPane.showMessageDialog(null, logs, "错误！", JOptionPane.ERROR_MESSAGE);
         	}
             
@@ -429,6 +430,7 @@ public class Mainframe extends JFrame implements ActionListener {
             	String logs = "程序运行时出现错误，建议把错误日志反馈GreenHub，并给他一巴掌叫他起床修bug！\n\n" + tools.getLog(e);
             	log_temp += tools.getLog(e);
             	JOptionPane.showMessageDialog(null, logs, "错误！", JOptionPane.ERROR_MESSAGE);
+            	e.printStackTrace();
 			}
             
         }
@@ -616,6 +618,7 @@ public class Mainframe extends JFrame implements ActionListener {
         	String logs = "程序运行时出现错误，建议把错误日志反馈GreenHub，并给他一巴掌叫他起床修bug！\n\n" + tools.getLog(e);
         	log_temp += tools.getLog(e);
         	JOptionPane.showMessageDialog(null, logs, "错误！", JOptionPane.ERROR_MESSAGE);
+        	e.printStackTrace();
         }
         
 
@@ -674,6 +677,7 @@ public class Mainframe extends JFrame implements ActionListener {
         	String logs = "程序运行时出现错误，建议把错误日志反馈GreenHub，并给他一巴掌叫他起床修bug！\n\n" + tools.getLog(e);
         	log_temp += tools.getLog(e);
         	JOptionPane.showMessageDialog(null, logs, "错误！", JOptionPane.ERROR_MESSAGE);
+        	e.printStackTrace();
         	return null;
         } 
         
@@ -894,6 +898,7 @@ public class Mainframe extends JFrame implements ActionListener {
                 	String logs = "程序运行时出现错误，建议把错误日志反馈GreenHub，并给他一巴掌叫他起床修bug！\n\n" + tools.getLog(e);
                 	log_temp += tools.getLog(e);
                 	JOptionPane.showMessageDialog(null, logs, "错误！", JOptionPane.ERROR_MESSAGE);
+                	e.printStackTrace();
                 }
             }
 
@@ -903,7 +908,7 @@ public class Mainframe extends JFrame implements ActionListener {
     //生成Cinema.json方法。
     public void cinema_info_generate(String save_path, String video_file_name) {
         String file_name = video_file_name;
-        String opacity = "";
+        double opacity = 0.0;
         /*
         * 别跟我讲什么代码优化，什么自底向上和自顶向下什么的，我TM编译原理都忘光了，要不是老师捞我我早就寄了。
         * */
@@ -919,7 +924,7 @@ public class Mainframe extends JFrame implements ActionListener {
             }
         }
 
-        opacity = temp;
+        opacity = value;
         //开始生成json文件并导出。
         try {
             JSONObject jsonObject = new JSONObject(true);
@@ -951,6 +956,7 @@ public class Mainframe extends JFrame implements ActionListener {
             	String logs = "程序运行时出现错误，建议把错误日志反馈GreenHub，并给他一巴掌叫他起床修bug！\n\n" + tools.getLog(e);
             	log_temp += tools.getLog(e);
             	JOptionPane.showMessageDialog(null, logs, "错误！", JOptionPane.ERROR_MESSAGE);
+            	e.printStackTrace();
             }
             if (flag == true) {
                 JOptionPane.showMessageDialog(this, "cinema.json文件生成成功！");
@@ -960,6 +966,7 @@ public class Mainframe extends JFrame implements ActionListener {
         	String logs = "程序运行时出现错误，建议把错误日志反馈GreenHub，并给他一巴掌叫他起床修bug！\n\n" + tools.getLog(e);
         	log_temp += tools.getLog(e);
         	JOptionPane.showMessageDialog(null, logs, "错误！", JOptionPane.ERROR_MESSAGE);
+        	e.printStackTrace();
         }
 
 
@@ -993,12 +1000,14 @@ public class Mainframe extends JFrame implements ActionListener {
             	String logs = "程序运行时出现错误，建议把错误日志反馈GreenHub，并给他一巴掌叫他起床修bug！\n\n" + tools.getLog(e);
             	log_temp += tools.getLog(e);
             	JOptionPane.showMessageDialog(null, logs, "错误！", JOptionPane.ERROR_MESSAGE);
+            	e.printStackTrace();
             }
         } catch (Exception e) {
         	utils tools = new utils();
         	String logs = "程序运行时出现错误，建议把错误日志反馈GreenHub，并给他一巴掌叫他起床修bug！\n\n" + tools.getLog(e);
         	log_temp += tools.getLog(e);
         	JOptionPane.showMessageDialog(null, logs, "错误！", JOptionPane.ERROR_MESSAGE);
+        	e.printStackTrace();
         }
     }
     //About页面的JDialog界面
@@ -1049,7 +1058,7 @@ public class Mainframe extends JFrame implements ActionListener {
         jDialog.setVisible(true);
     }
 
-    // GreenHubの奇妙小按钮，鉴于这个功能真的屁用没有，我已经将其废弃，但不排除将来可能会整点什么别的活。
+    // GreenHubの奇妙小按钮，鉴于这个功能真的屁用没有，该功能目前已经被废弃，但不排除将来可能会整点什么别的活。
     // Deprecated.
     public void secretButton() {
         if (count != 100) {
@@ -1133,6 +1142,7 @@ public class Mainframe extends JFrame implements ActionListener {
         	String logs = "程序运行时出现错误，建议把错误日志反馈GreenHub，并给他一巴掌叫他起床修bug！\n\n" + tools.getLog(e);
         	log_temp += tools.getLog(e);
         	JOptionPane.showMessageDialog(null, logs, "错误！", JOptionPane.ERROR_MESSAGE);
+        	e.printStackTrace();
         }
         tag_json = tags_builder.toString();
         net.sf.json.JSONObject tags = net.sf.json.JSONObject.fromObject(tag_json);
