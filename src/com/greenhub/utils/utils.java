@@ -20,8 +20,15 @@ public class utils {
 		return sb.toString();
 	}
 	
-	// deprecated
-	// 发现控制台后面追加参数就可以生成日志，所以此函数废弃。
+	// 在对话框中输出日志文件。
+	public void generateLogs_Window(Exception e) {
+    	String logs = "程序运行时出现错误，建议把错误日志反馈GreenHub，并给他一巴掌叫他起床修bug！\n\n" + this.getLog(e);
+    	JOptionPane.showMessageDialog(null, logs, "错误！", JOptionPane.ERROR_MESSAGE);
+    	e.printStackTrace();
+	}
+	
+	// 将日志输出到文件，后来发现用控制台追加后缀就可以输出日志，不需要在代码里面写这个函数，故此方法被废弃。
+	// Deprecated.
 	public void generateLogs(String logs, String path) {
 		// 检测Logs文件夹是否存在，如果不存在，就创建一个。
 		File file = new File("");

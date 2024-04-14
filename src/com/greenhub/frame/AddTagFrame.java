@@ -2,6 +2,8 @@ package com.greenhub.frame;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.greenhub.utils.utils;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -30,6 +32,11 @@ public class AddTagFrame extends JDialog implements ActionListener{
     private JButton load = new JButton("加载");
     private JButton exit = new JButton("关闭");
     private DefaultListModel<String> model = new DefaultListModel<>();
+    
+    // Global Variables.
+    private utils util = new utils();
+    
+    
     public AddTagFrame() {
         this.setTitle(title);
         this.setSize(500,300);
@@ -203,7 +210,7 @@ public class AddTagFrame extends JDialog implements ActionListener{
             writer.flush();
             writer.close();
         } catch (Exception e) {
-            e.printStackTrace();
+        	util.generateLogs_Window(e);
         }
     }
 
@@ -221,7 +228,7 @@ public class AddTagFrame extends JDialog implements ActionListener{
             }
             bufferedReader.close();
         } catch (Exception e) {
-            e.printStackTrace();
+        	util.generateLogs_Window(e);
         }
         tag_json = tags_builder.toString();
         JSONObject tags = JSONObject.fromObject(tag_json);
@@ -252,7 +259,7 @@ public class AddTagFrame extends JDialog implements ActionListener{
             }
             bufferedReader.close();
         } catch (Exception e) {
-            e.printStackTrace();
+        	util.generateLogs_Window(e);
         }
         return json_info.toString();
     }
